@@ -8,35 +8,62 @@ import { NationDetail } from "./nation-detail";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
+const fifaGroups: Record<string, string[]> = {
+  A: ["mexico", "south-africa", "south-korea", "czechia"],
+  B: ["canada", "bosnia-herzegovina", "qatar", "switzerland"],
+  C: ["brazil", "morocco", "haiti", "scotland"],
+  D: ["usa", "paraguay", "australia", "turkiye"],
+  E: ["germany", "curacao", "ivory-coast", "ecuador"],
+  F: ["netherlands", "japan", "sweden", "tunisia"],
+  G: ["belgium", "egypt", "iran", "new-zealand"],
+  H: ["spain", "cape-verde", "saudi-arabia", "uruguay"],
+  I: ["france", "senegal", "iraq", "norway"],
+  J: ["argentina", "algeria", "austria", "jordan"],
+  K: ["portugal", "dr-congo", "uzbekistan", "colombia"],
+  L: ["england", "croatia", "ghana", "panama"],
+};
+
+const qualifiedNationIds = new Set(Object.values(fifaGroups).flat());
+
 export function NationsGrid() {
   const { t } = useLanguage();
   const [selectedNationId, setSelectedNationId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
+  const qualifiedNations = useMemo(
+    () => nations.filter((nation) => qualifiedNationIds.has(nation.id)),
+    []
+  );
+
   const filteredNations = useMemo(() => {
-    if (!search.trim()) return nations;
+    if (!search.trim()) return qualifiedNations;
     const query = search.toLowerCase();
-    return nations.filter(
+    return qualifiedNations.filter(
       (n) =>
         n.name.toLowerCase().includes(query) ||
         n.code.toLowerCase().includes(query) ||
         n.confederation.toLowerCase().includes(query)
     );
-  }, [search]);
+  }, [search, qualifiedNations]);
 
   const groupedNations = useMemo(() => {
+    const nationMap = new Map(filteredNations.map((nation) => [nation.id, nation]));
     const groups: Record<string, typeof nations> = {};
-    filteredNations.forEach((nation) => {
-      if (!groups[nation.confederation]) {
-        groups[nation.confederation] = [];
+
+    Object.entries(fifaGroups).forEach(([group, teamIds]) => {
+      const teams = teamIds
+        .map((teamId) => nationMap.get(teamId))
+        .filter(Boolean) as typeof nations;
+      if (teams.length > 0) {
+        groups[`Group ${group}`] = teams;
       }
-      groups[nation.confederation].push(nation);
     });
+
     return groups;
   }, [filteredNations]);
 
   const selectedNation = selectedNationId
-    ? nations.find((n) => n.id === selectedNationId)
+    ? qualifiedNations.find((n) => n.id === selectedNationId)
     : null;
 
   if (selectedNation) {
