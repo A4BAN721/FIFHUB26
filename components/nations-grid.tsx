@@ -95,9 +95,6 @@ export function NationsGrid() {
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
           {t("allNationsTitle")}
         </h2>
-        <p className="text-muted-foreground">
-          {filteredNations.length} {t("allNationsSubtitle")}
-        </p>
       </div>
 
       {/* Nations by Confederation */}

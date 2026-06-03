@@ -161,3 +161,16 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+@keyframes diagonal-float {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(-18px, 18px) rotate(2deg);
+  }
+}
+
+.animate-diagonal-float {
+  animation: diagonal-float 18s ease-in-out infinite;
+}

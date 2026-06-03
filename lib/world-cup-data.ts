@@ -30,7 +30,7 @@ export const translations: Record<string, Record<string, string>> = {
     title: "FIFA World Cup 2026",
     subtitle: "USA, Mexico & Canada",
     allNationsTitle: "Groups and Nations",
-    allNationsSubtitle: "",
+    allNationsSubtitle: "12 Groups, 48 Nations",
     players: "Players",
     position: "Position",
     club: "Club",
