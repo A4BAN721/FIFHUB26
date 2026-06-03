@@ -1148,7 +1148,7 @@ export const nations: Nation[] = [
     id: "scotland",
     name: "Scotland",
     code: "GB-SCT",
-    flag: "🏴",
+    flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
     confederation: "UEFA",
     totalSquadValue: "€320M",
     jerseyColors: { primary: "#0065BD", secondary: "#FFFFFF", accent: "#002B5C" },

@@ -55,18 +55,6 @@ export function NationCard({ nation, onClick, index }: NationCardProps) {
           </div>
 
           <div className="mt-6 space-y-3">
-            <div className="rounded-[1.5rem] border border-white/10 bg-background/60 p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">Football Badge</p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">{nation.name}</p>
-                </div>
-                <div className="grid h-12 w-12 place-items-center rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.12),transparent_70%)] text-xl shadow-sm">
-                  <span>{nation.flag}</span>
-                </div>
-              </div>
-            </div>
-
             <div className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-white/10 bg-background/60 p-4">
               <div className="flex items-center gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-3xl border border-white/10 bg-white/10 text-lg">
