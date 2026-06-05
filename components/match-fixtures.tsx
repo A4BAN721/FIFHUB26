@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { matchFixtures, normalizeCountryName, Match } from "@/lib/match-fixtures";
 import { nations } from "@/lib/world-cup-data";
 import { useLanguage } from "./language-provider";
+import { useTheme } from "next-themes";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, Calendar, MapPin, Clock } from "lucide-react";
@@ -11,6 +12,7 @@ import { motion } from "framer-motion";
 
 export function MatchFixtures() {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [search, setSearch] = useState("");
   const [selectedStage, setSelectedStage] = useState<string>("ALL");
 
@@ -40,16 +42,27 @@ export function MatchFixtures() {
     return matches;
   }, [search, selectedStage]);
 
-  const matchesByDate = useMemo(() => {
+  const matchesByStage = useMemo(() => {
     const grouped: Record<string, Match[]> = {};
     filteredMatches.forEach((match) => {
-      if (!grouped[match.date]) {
-        grouped[match.date] = [];
+      if (!grouped[match.stage]) {
+        grouped[match.stage] = [];
       }
-      grouped[match.date].push(match);
+      grouped[match.stage].push(match);
     });
     return grouped;
   }, [filteredMatches]);
+
+  const getGroupStageMatchdays = (matches: Match[]) => {
+    const matchday1 = matches.slice(0, 24);
+    const matchday2 = matches.slice(24, 48);
+    const matchday3 = matches.slice(48, 72);
+    return [
+      { name: "Matchday 1", matches: matchday1 },
+      { name: "Matchday 2", matches: matchday2 },
+      { name: "Matchday 3", matches: matchday3 },
+    ];
+  };
 
   const getNationId = (teamName: string): string | null => {
     if (teamName === "TBD") return null;
@@ -76,6 +89,18 @@ export function MatchFixtures() {
       return nation ? nation.jerseyColors.primary : "#666";
     }
     return "#666";
+  };
+
+  const getCardBackgroundColor = () => {
+    return theme === "dark" ? "rgba(30, 30, 35, 0.6)" : "rgba(255, 255, 255, 0.7)";
+  };
+
+  const getCardBorderColor = () => {
+    return theme === "dark" ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)";
+  };
+
+  const getTextShadowColor = () => {
+    return theme === "dark" ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.9)";
   };
 
   return (
@@ -120,127 +145,295 @@ export function MatchFixtures() {
         </p>
       </div>
 
-      {/* Matches by Date */}
+      {/* Matches by Stage */}
       <div className="space-y-6">
-        {Object.entries(matchesByDate).map(([date, matches], dateIndex) => (
-          <motion.div
-            key={date}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: dateIndex * 0.02, duration: 0.3 }}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <Calendar className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">{date}</h3>
-              <div className="flex-1 h-px bg-border/50" />
-              <span className="text-xs text-muted-foreground">
-                {matches.length} {matches.length === 1 ? "match" : "matches"}
-              </span>
-            </div>
+        {Object.entries(matchesByStage).map(([stage, matches], stageIndex) => {
+          const isGroupStage = stage === "GROUP STAGE";
+          
+          if (isGroupStage) {
+            const matchdays = getGroupStageMatchdays(matches);
+            
+            return (
+              <motion.div
+                key={stage}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: stageIndex * 0.02, duration: 0.3 }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Group Stage
+                  </h3>
+                  <div className="flex-1 h-px bg-border/50" />
+                  <span className="text-xs text-muted-foreground">
+                    {matches.length} matches
+                  </span>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {matches.map((match, matchIndex) => {
-                const homeNationId = getNationId(match.homeTeam);
-                const awayNationId = getNationId(match.awayTeam);
-                const homeColor = getNationColor(match.homeTeam);
-                const awayColor = getNationColor(match.awayTeam);
+                {matchdays.map((matchday, mdIndex) => (
+                  <div key={matchday.name} className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <h4 className="text-xs font-semibold text-muted-foreground">
+                        {matchday.name}
+                      </h4>
+                      <div className="flex-1 h-px bg-border/30" />
+                      <span className="text-[10px] text-muted-foreground">
+                        {matchday.matches.length} matches
+                      </span>
+                    </div>
 
-                return (
-                  <motion.div
-                    key={match.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: dateIndex * 0.02 + matchIndex * 0.01, duration: 0.2 }}
-                  >
-                    <Card className="group relative overflow-hidden rounded-2xl border border-border/20 bg-card/20 backdrop-blur-xl transition-all duration-300 hover:border-border/40 hover:shadow-lg hover:-translate-y-1">
-                      <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.1),transparent_20%),radial-gradient(circle_at_bottom_right,_rgba(0,0,0,0.05),transparent_30%)]" />
-                      
-                      <div className="relative p-4">
-                        {/* Header: Time and Stage */}
-                        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border/20">
-                          <span className="text-xs font-semibold text-muted-foreground">{match.time}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                            {match.group || match.stage}
-                          </span>
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {matchday.matches.map((match: Match, matchIndex: number) => {
+                        const homeNationId = getNationId(match.homeTeam);
+                        const awayNationId = getNationId(match.awayTeam);
+                        const homeColor = getNationColor(match.homeTeam);
+                        const awayColor = getNationColor(match.awayTeam);
 
-                        {/* Teams - Vertical Layout */}
-                        <div className="space-y-3">
-                          {/* Home Team */}
-                          <div className="flex items-center gap-3">
-                            {homeNationId ? (
-                              <button
-                                onClick={() => {
-                                  window.dispatchEvent(
-                                    new CustomEvent("nationSelected", { detail: homeNationId })
-                                  );
-                                }}
-                                className="flex items-center gap-3 flex-1"
-                                style={{ ['--team-color' as any]: homeColor }}
-                              >
-                                <span className="text-2xl">{getNationFlag(match.homeTeam)}</span>
-                                <span className="text-sm font-semibold text-foreground group-hover:text-[var(--team-color)] transition-colors text-left">
-                                  {match.homeTeam}
-                                </span>
-                              </button>
-                            ) : (
-                              <div className="flex items-center gap-3 flex-1">
-                                <span className="text-2xl">{getNationFlag(match.homeTeam)}</span>
-                                <span className="text-sm font-semibold text-muted-foreground">
-                                  {match.homeTeam}
-                                </span>
+                        return (
+                          <motion.div
+                            key={match.id}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: stageIndex * 0.02 + mdIndex * 0.01 + matchIndex * 0.005, duration: 0.2 }}
+                          >
+                            <Card 
+                              className="group relative overflow-hidden rounded-2xl backdrop-blur-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                              style={{
+                                backgroundColor: getCardBackgroundColor(),
+                                borderColor: getCardBorderColor()
+                              }}
+                            >
+                              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),transparent_15%),radial-gradient(circle_at_bottom_right,_rgba(0,0,0,0.03),transparent_20%)]" />
+                              
+                              <div className="relative p-3">
+                                {/* Group name at top right for Group Stage */}
+                                <div className="absolute top-2 right-2">
+                                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                    {match.group}
+                                  </span>
+                                </div>
+
+                                {/* Date and Time for Group Stage */}
+                                <div className="flex items-center justify-center mb-2 pt-4">
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {match.date} • {match.time}
+                                  </span>
+                                </div>
+
+                                {/* Teams - Horizontal Layout */}
+                                <div className="flex items-center justify-between gap-2">
+                                  {/* Home Team */}
+                                  <div className="flex-1">
+                                    {homeNationId ? (
+                                      <button
+                                        onClick={() => {
+                                          window.dispatchEvent(
+                                            new CustomEvent("nationSelected", { detail: homeNationId })
+                                          );
+                                        }}
+                                        className="flex items-center gap-2 w-full"
+                                        style={{ ['--team-color' as any]: homeColor, ['--shadow-color' as any]: getTextShadowColor() }}
+                                      >
+                                        <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
+                                        <span className="text-xs font-semibold text-foreground">
+                                          <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
+                                            {match.homeTeam}
+                                          </span>
+                                        </span>
+                                      </button>
+                                    ) : (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
+                                        <span className="text-xs font-semibold text-muted-foreground">
+                                          {match.homeTeam}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* VS */}
+                                  <div className="text-muted-foreground font-bold text-xs px-1">
+                                    VS
+                                  </div>
+
+                                  {/* Away Team */}
+                                  <div className="flex-1">
+                                    {awayNationId ? (
+                                      <button
+                                        onClick={() => {
+                                          window.dispatchEvent(
+                                            new CustomEvent("nationSelected", { detail: awayNationId })
+                                          );
+                                        }}
+                                        className="flex items-center gap-2 w-full justify-end"
+                                        style={{ ['--team-color' as any]: awayColor, ['--shadow-color' as any]: getTextShadowColor() }}
+                                      >
+                                        <span className="text-xs font-semibold text-foreground">
+                                          <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
+                                            {match.awayTeam}
+                                          </span>
+                                        </span>
+                                        <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
+                                      </button>
+                                    ) : (
+                                      <div className="flex items-center gap-2 justify-end">
+                                        <span className="text-xs font-semibold text-muted-foreground">
+                                          {match.awayTeam}
+                                        </span>
+                                        <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Stadium */}
+                                <div className="flex items-center gap-1 text-muted-foreground text-xs mt-2 pt-2 border-t border-border/20">
+                                  <MapPin className="h-3 w-3" />
+                                  <span className="truncate">{match.stadium}</span>
+                                </div>
                               </div>
-                            )}
+                            </Card>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            );
+          }
+          
+          return (
+            <motion.div
+              key={stage}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: stageIndex * 0.02, duration: 0.3 }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  {stage}
+                </h3>
+                <div className="flex-1 h-px bg-border/50" />
+                <span className="text-xs text-muted-foreground">
+                  {matches.length} {matches.length === 1 ? "match" : "matches"}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {matches.map((match: Match, matchIndex: number) => {
+                  const homeNationId = getNationId(match.homeTeam);
+                  const awayNationId = getNationId(match.awayTeam);
+                  const homeColor = getNationColor(match.homeTeam);
+                  const awayColor = getNationColor(match.awayTeam);
+
+                  return (
+                    <motion.div
+                      key={match.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: stageIndex * 0.02 + matchIndex * 0.01, duration: 0.2 }}
+                    >
+                      <Card 
+                        className="group relative overflow-hidden rounded-2xl backdrop-blur-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                        style={{
+                          backgroundColor: getCardBackgroundColor(),
+                          borderColor: getCardBorderColor()
+                        }}
+                      >
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),transparent_15%),radial-gradient(circle_at_bottom_right,_rgba(0,0,0,0.03),transparent_20%)]" />
+                        
+                        <div className="relative p-3">
+                          {/* Header: Time and Info */}
+                          <div className="flex items-center justify-between mb-2 pb-2 border-b border-border/20">
+                            <span className="text-xs font-semibold text-muted-foreground">{match.time}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                              {match.date}
+                            </span>
                           </div>
 
-                          {/* Divider */}
-                          <div className="flex items-center justify-center">
-                            <div className="h-px flex-1 bg-border/30" />
-                            <span className="text-xs text-muted-foreground font-bold px-2">VS</span>
-                            <div className="h-px flex-1 bg-border/30" />
+                          {/* Teams - Horizontal Layout */}
+                          <div className="flex items-center justify-between gap-2">
+                            {/* Home Team */}
+                            <div className="flex-1">
+                              {homeNationId ? (
+                                <button
+                                  onClick={() => {
+                                    window.dispatchEvent(
+                                      new CustomEvent("nationSelected", { detail: homeNationId })
+                                    );
+                                  }}
+                                  className="flex items-center gap-2 w-full"
+                                  style={{ ['--team-color' as any]: homeColor, ['--shadow-color' as any]: getTextShadowColor() }}
+                                >
+                                  <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
+                                  <span className="text-xs font-semibold text-foreground">
+                                    <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
+                                      {match.homeTeam}
+                                    </span>
+                                  </span>
+                                </button>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
+                                  <span className="text-xs font-semibold text-muted-foreground">
+                                    {match.homeTeam}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* VS */}
+                            <div className="text-muted-foreground font-bold text-xs px-1">
+                              VS
+                            </div>
+
+                            {/* Away Team */}
+                            <div className="flex-1">
+                              {awayNationId ? (
+                                <button
+                                  onClick={() => {
+                                    window.dispatchEvent(
+                                      new CustomEvent("nationSelected", { detail: awayNationId })
+                                    );
+                                  }}
+                                  className="flex items-center gap-2 w-full justify-end"
+                                  style={{ ['--team-color' as any]: awayColor, ['--shadow-color' as any]: getTextShadowColor() }}
+                                >
+                                  <span className="text-xs font-semibold text-foreground">
+                                    <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
+                                      {match.awayTeam}
+                                    </span>
+                                  </span>
+                                  <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
+                                </button>
+                              ) : (
+                                <div className="flex items-center gap-2 justify-end">
+                                  <span className="text-xs font-semibold text-muted-foreground">
+                                    {match.awayTeam}
+                                  </span>
+                                  <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
 
-                          {/* Away Team */}
-                          <div className="flex items-center gap-3">
-                            {awayNationId ? (
-                              <button
-                                onClick={() => {
-                                  window.dispatchEvent(
-                                    new CustomEvent("nationSelected", { detail: awayNationId })
-                                  );
-                                }}
-                                className="flex items-center gap-3 flex-1"
-                                style={{ ['--team-color' as any]: awayColor }}
-                              >
-                                <span className="text-2xl">{getNationFlag(match.awayTeam)}</span>
-                                <span className="text-sm font-semibold text-foreground group-hover:text-[var(--team-color)] transition-colors text-left">
-                                  {match.awayTeam}
-                                </span>
-                              </button>
-                            ) : (
-                              <div className="flex items-center gap-3 flex-1">
-                                <span className="text-2xl">{getNationFlag(match.awayTeam)}</span>
-                                <span className="text-sm font-semibold text-muted-foreground">
-                                  {match.awayTeam}
-                                </span>
-                              </div>
-                            )}
+                          {/* Stadium */}
+                          <div className="flex items-center gap-1 text-muted-foreground text-xs mt-2 pt-2 border-t border-border/20">
+                            <MapPin className="h-3 w-3" />
+                            <span className="truncate">{match.stadium}</span>
                           </div>
                         </div>
-
-                        {/* Stadium */}
-                        <div className="flex items-center gap-1 text-muted-foreground text-xs mt-3 pt-3 border-t border-border/20">
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{match.stadium}</span>
-                        </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-        ))}
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {filteredMatches.length === 0 && (

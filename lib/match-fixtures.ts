@@ -1036,6 +1036,7 @@ export function normalizeCountryName(name: string): string {
     "Cabo Verde": "cape-verde",
     "South Korea": "south-korea",
     "Türkiye": "turkiye",
+    "Curaçao": "curacao",
   };
   
   return nameMap[name] || name.toLowerCase().replace(/\s+/g, "-");

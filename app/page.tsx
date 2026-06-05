@@ -24,13 +24,20 @@ export default function Home() {
     };
   }, []);
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === "squads") {
+      setSelectedNationId(null);
+    }
+  };
+
   return (
     <main className="min-h-screen relative">
       <TriondaBackground />
       <div className="relative z-10">
         <Header />
         <div className="container mx-auto px-4 py-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="mx-auto mb-6">
               <TabsTrigger value="squads">Squads</TabsTrigger>
               <TabsTrigger value="fixtures">Match Fixtures</TabsTrigger>
