@@ -30,7 +30,7 @@ interface NationsGridProps {
 }
 
 export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedNationId, setSelectedNationId] = useState<string | null>(initialSelectedNationId || null);
   const [search, setSearch] = useState("");
 
@@ -84,6 +84,24 @@ export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
     return groups;
   }, [filteredNations]);
 
+  const getTranslatedGroupName = (groupName: string): string => {
+    const groupMap: Record<string, string> = {
+      "Group A": "গ্রুপ এ",
+      "Group B": "গ্রুপ বি",
+      "Group C": "গ্রুপ সি",
+      "Group D": "গ্রুপ ডি",
+      "Group E": "গ্রুপ ই",
+      "Group F": "গ্রুপ এফ",
+      "Group G": "গ্রুপ জি",
+      "Group H": "গ্রুপ এইচ",
+      "Group I": "গ্রুপ আই",
+      "Group J": "গ্রুপ জে",
+      "Group K": "গ্রুপ কে",
+      "Group L": "গ্রুপ এল",
+    };
+    return groupMap[groupName] || groupName;
+  };
+
   const selectedNation = selectedNationId
     ? qualifiedNations.find((n) => n.id === selectedNationId)
     : null;
@@ -125,11 +143,11 @@ export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
           <section key={confederation}>
             <div className="flex items-center gap-3 mb-4">
               <h3 className="text-lg font-semibold text-foreground">
-                {confederation}
+                {language === "bn" ? getTranslatedGroupName(confederation) : confederation}
               </h3>
               <div className="flex-1 h-px bg-border/50" />
               <span className="text-sm text-muted-foreground">
-                {confNations.length} teams
+                {confNations.length} {language === "bn" ? t("players") : "teams"}
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

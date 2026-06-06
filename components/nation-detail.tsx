@@ -14,8 +14,13 @@ interface NationDetailProps {
 }
 
 export function NationDetail({ nation, onBack }: NationDetailProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [filterPosition, setFilterPosition] = useState<string>("all");
+
+  const getTranslatedCountryName = (nationId: string): string => {
+    const translationKey = nationId.replace(/-/g, "");
+    return t(translationKey) || nation.name;
+  };
 
   const filteredPlayers = useMemo(() => {
     if (filterPosition === "all") return nation.players;
@@ -88,7 +93,7 @@ export function NationDetail({ nation, onBack }: NationDetailProps) {
                 className="text-4xl md:text-5xl font-bold mb-2"
                 style={{ color: isLightPrimary ? "#000" : "#fff" }}
               >
-                {nation.name}
+                {getTranslatedCountryName(nation.id)}
               </h1>
               <div
                 className="flex items-center gap-4 text-sm"
@@ -113,7 +118,7 @@ export function NationDetail({ nation, onBack }: NationDetailProps) {
               className="text-xs font-medium"
               style={{ color: isLightPrimary ? "#333" : "#ddd" }}
             >
-              Jersey Colors:
+              {t("jerseyColors")}:
             </span>
             <div className="flex gap-1">
               <div
@@ -159,7 +164,7 @@ export function NationDetail({ nation, onBack }: NationDetailProps) {
                     : {}
                 }
               >
-                {pos === "all" ? "All" : t(pos.toLowerCase())}
+                {pos === "all" ? t("all") : t(pos.toLowerCase())}
               </Button>
             )
           )}
@@ -214,6 +219,17 @@ interface PlayerCardProps {
 }
 
 function PlayerCard({ player, nationColors, index, t }: PlayerCardProps) {
+  const getTranslatedPlayerName = (fullName: string): string => {
+    // Convert full name to a translation key (camelCase, no spaces, no special chars)
+    const translationKey = fullName
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+      .replace(/\s+/g, "");
+    
+    // Try to get translation, fallback to original name
+    return t(translationKey) || fullName;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -240,13 +256,13 @@ function PlayerCard({ player, nationColors, index, t }: PlayerCardProps) {
             {/* Player Info */}
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                {player.fullName}
+                {getTranslatedPlayerName(player.fullName)}
               </h3>
               <p
                 className="text-sm font-medium mb-1"
                 style={{ color: nationColors.primary }}
               >
-                {player.position}
+                {t(player.position.toLowerCase())}
               </p>
               <p className="text-xs text-muted-foreground truncate">
                 {player.club}
@@ -266,7 +282,7 @@ function PlayerCard({ player, nationColors, index, t }: PlayerCardProps) {
             </div>
             <div className="flex justify-between p-2 rounded bg-muted/50">
               <span className="text-muted-foreground">{t("strongFoot")}</span>
-              <span className="font-medium text-foreground">{player.strongFoot}</span>
+              <span className="font-medium text-foreground">{t(player.strongFoot.toLowerCase())}</span>
             </div>
             <div className="flex justify-between p-2 rounded bg-muted/50">
               <span className="text-muted-foreground">{t("marketValue")}</span>

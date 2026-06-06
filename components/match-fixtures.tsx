@@ -11,7 +11,7 @@ import { Search, Calendar, MapPin, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function MatchFixtures() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { theme } = useTheme();
   const [search, setSearch] = useState("");
   const [selectedStage, setSelectedStage] = useState<string>("ALL");
@@ -91,6 +91,26 @@ export function MatchFixtures() {
     return "#666";
   };
 
+  const getTranslatedTeamName = (teamName: string): string => {
+    if (teamName === "TBD") return "TBD";
+    const normalized = normalizeCountryName(teamName);
+    const translationKey = normalized.replace(/-/g, "");
+    return t(translationKey) || teamName;
+  };
+
+  const getTranslatedStage = (stage: string): string => {
+    const stageMap: Record<string, string> = {
+      "GROUP STAGE": t("groupStage"),
+      "ROUND OF 32": t("roundOf32"),
+      "ROUND OF 16": t("roundOf16"),
+      "QUARTER-FINALS": t("quarterFinals"),
+      "SEMI-FINALS": t("semiFinals"),
+      "BRONZE FINAL": t("bronzeFinal"),
+      "FINAL": t("final"),
+    };
+    return stageMap[stage] || stage;
+  };
+
   const getCardBackgroundColor = () => {
     return theme === "dark" ? "rgba(30, 30, 35, 0.6)" : "rgba(255, 255, 255, 0.7)";
   };
@@ -110,7 +130,7 @@ export function MatchFixtures() {
         <div className="relative max-w-md mx-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search matches, teams, or stadiums..."
+            placeholder={t("searchMatches")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 bg-card/80 backdrop-blur-sm border-border/50"
@@ -138,10 +158,10 @@ export function MatchFixtures() {
       {/* Title */}
       <div className="text-center mb-4">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
-          Match Fixtures
+          {t("matchFixtures")}
         </h2>
         <p className="text-sm text-muted-foreground">
-          FIFA World Cup 2026 Schedule
+          {t("schedule")}
         </p>
       </div>
 
@@ -163,11 +183,11 @@ export function MatchFixtures() {
                 <div className="flex items-center gap-2 mb-4">
                   <Calendar className="h-4 w-4 text-primary" />
                   <h3 className="text-sm font-semibold text-foreground">
-                    Group Stage
+                    {getTranslatedStage("GROUP STAGE")}
                   </h3>
                   <div className="flex-1 h-px bg-border/50" />
                   <span className="text-xs text-muted-foreground">
-                    {matches.length} matches
+                    {matches.length} {matches.length === 1 ? t("players") : t("players")}
                   </span>
                 </div>
 
@@ -175,11 +195,11 @@ export function MatchFixtures() {
                   <div key={matchday.name} className="mb-6">
                     <div className="flex items-center gap-2 mb-3">
                       <h4 className="text-xs font-semibold text-muted-foreground">
-                        {matchday.name}
+                        {t("matchday")} {mdIndex + 1}
                       </h4>
                       <div className="flex-1 h-px bg-border/30" />
                       <span className="text-[10px] text-muted-foreground">
-                        {matchday.matches.length} matches
+                        {matchday.matches.length} {matchday.matches.length === 1 ? t("players") : t("players")}
                       </span>
                     </div>
 
@@ -314,11 +334,11 @@ export function MatchFixtures() {
               <div className="flex items-center gap-2 mb-3">
                 <Calendar className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">
-                  {stage}
+                  {getTranslatedStage(stage)}
                 </h3>
                 <div className="flex-1 h-px bg-border/50" />
                 <span className="text-xs text-muted-foreground">
-                  {matches.length} {matches.length === 1 ? "match" : "matches"}
+                  {matches.length} {matches.length === 1 ? t("players") : t("players")}
                 </span>
               </div>
 
@@ -371,7 +391,7 @@ export function MatchFixtures() {
                                   <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
                                   <span className="text-xs font-semibold text-foreground">
                                     <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
-                                      {match.homeTeam}
+                                      {getTranslatedTeamName(match.homeTeam)}
                                     </span>
                                   </span>
                                 </button>
@@ -379,7 +399,7 @@ export function MatchFixtures() {
                                 <div className="flex items-center gap-2">
                                   <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
                                   <span className="text-xs font-semibold text-muted-foreground">
-                                    {match.homeTeam}
+                                    {getTranslatedTeamName(match.homeTeam)}
                                   </span>
                                 </div>
                               )}
@@ -387,7 +407,7 @@ export function MatchFixtures() {
 
                             {/* VS */}
                             <div className="text-muted-foreground font-bold text-xs px-1">
-                              VS
+                              {t("vs")}
                             </div>
 
                             {/* Away Team */}
@@ -404,7 +424,7 @@ export function MatchFixtures() {
                                 >
                                   <span className="text-xs font-semibold text-foreground">
                                     <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
-                                      {match.awayTeam}
+                                      {getTranslatedTeamName(match.awayTeam)}
                                     </span>
                                   </span>
                                   <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
@@ -412,7 +432,7 @@ export function MatchFixtures() {
                               ) : (
                                 <div className="flex items-center gap-2 justify-end">
                                   <span className="text-xs font-semibold text-muted-foreground">
-                                    {match.awayTeam}
+                                    {getTranslatedTeamName(match.awayTeam)}
                                   </span>
                                   <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
                                 </div>

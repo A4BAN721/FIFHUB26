@@ -15,6 +15,11 @@ interface NationCardProps {
 export function NationCard({ nation, onClick, index }: NationCardProps) {
   const { t } = useLanguage();
 
+  const getTranslatedCountryName = (nationId: string): string => {
+    const translationKey = nationId.replace(/-/g, "");
+    return t(translationKey) || nation.name;
+  };
+
   const cardStyle: React.CSSProperties = {
     borderColor: nation.jerseyColors.primary,
     backgroundImage: `linear-gradient(140deg, ${nation.jerseyColors.primary}22 0%, ${nation.jerseyColors.secondary}14 35%, ${nation.jerseyColors.accent}10 100%), radial-gradient(circle at top left, ${nation.jerseyColors.primary}10, transparent 38%), radial-gradient(circle at bottom right, ${nation.jerseyColors.accent}08, transparent 42%)`,
@@ -42,7 +47,7 @@ export function NationCard({ nation, onClick, index }: NationCardProps) {
               </div>
               <div className="min-w-0">
                 <h3 className="truncate text-lg font-semibold text-foreground group-hover:text-[var(--tab-color)] transition-colors">
-                  {nation.name}
+                  {getTranslatedCountryName(nation.id)}
                 </h3>
                 <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
                   {nation.confederation}
