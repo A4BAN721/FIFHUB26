@@ -1,6 +1,6 @@
 "use client";
 
-import { Nation, Player } from "@/lib/world-cup-data";
+import type { Nation, Player } from "@/lib/world-cup-data";
 import { useLanguage } from "./language-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

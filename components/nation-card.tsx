@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Nation } from "@/lib/world-cup-data";
+import type { Nation } from "@/lib/world-cup-data";
 import { useLanguage } from "./language-provider";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";

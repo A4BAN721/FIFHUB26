@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { matchFixtures, normalizeCountryName, Match } from "@/lib/match-fixtures";
-import { nations } from "@/lib/world-cup-data";
+import { useEffect } from "react";
+import type { Match } from "@/lib/match-fixtures";
+import type { Nation } from "@/lib/world-cup-data";
+import { matchFixtures as fallbackMatchFixtures } from "@/lib/match-fixtures";
+import { nations as fallbackNations } from "@/lib/world-cup-data";
+import { normalizeCountryName } from "@/lib/country-utils";
+import { getMatchFixtures, getNations } from "@/lib/supabase/data";
 import { useLanguage } from "./language-provider";
 import { useTheme } from "next-themes";
 import { Card } from "@/components/ui/card";
@@ -15,11 +20,37 @@ export function MatchFixtures() {
   const { theme } = useTheme();
   const [search, setSearch] = useState("");
   const [selectedStage, setSelectedStage] = useState<string>("ALL");
+  const [matchFixtures, setMatchFixtures] = useState<Match[]>(fallbackMatchFixtures);
+  const [nations, setNations] = useState<Nation[]>(fallbackNations);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    Promise.all([getMatchFixtures(), getNations()])
+      .then(([supabaseMatches, supabaseNations]) => {
+        if (!isMounted) return;
+
+        if (supabaseMatches.length > 0) {
+          setMatchFixtures(supabaseMatches);
+        }
+
+        if (supabaseNations.length > 0) {
+          setNations(supabaseNations);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load match fixtures from Supabase:", error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const stages = useMemo(() => {
     const uniqueStages = Array.from(new Set(matchFixtures.map((m) => m.stage)));
     return ["ALL", ...uniqueStages];
-  }, []);
+  }, [matchFixtures]);
 
   const filteredMatches = useMemo(() => {
     let matches = matchFixtures;
@@ -40,7 +71,7 @@ export function MatchFixtures() {
     }
 
     return matches;
-  }, [search, selectedStage]);
+  }, [matchFixtures, search, selectedStage]);
 
   const matchesByStage = useMemo(() => {
     const grouped: Record<string, Match[]> = {};

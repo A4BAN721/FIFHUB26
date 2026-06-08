@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FIFA World Cup 2026 - Player Listings',
-  description: 'Complete squad listings for all qualified nations in the FIFA World Cup 2026, hosted by Mexico, USA, and Canada.',
+  title: 'FIFHUB 26',
+  description: 'Everything you need to know sorted in one place.',
   keywords: ['FIFA', 'World Cup', '2026', 'Football', 'Soccer', 'Players', 'Squads'],
 }
 

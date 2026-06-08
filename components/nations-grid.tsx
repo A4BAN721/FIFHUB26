@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { nations } from "@/lib/world-cup-data";
+import type { Nation } from "@/lib/world-cup-data";
+import { nations as fallbackNations } from "@/lib/world-cup-data";
+import { getNations } from "@/lib/supabase/data";
 import { useLanguage } from "./language-provider";
 import { NationCard } from "./nation-card";
 import { NationDetail } from "./nation-detail";
@@ -33,6 +35,25 @@ export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
   const { t, language } = useLanguage();
   const [selectedNationId, setSelectedNationId] = useState<string | null>(initialSelectedNationId || null);
   const [search, setSearch] = useState("");
+  const [nations, setNations] = useState<Nation[]>(fallbackNations);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getNations()
+      .then((supabaseNations) => {
+        if (isMounted && supabaseNations.length > 0) {
+          setNations(supabaseNations);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load nations from Supabase:", error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (initialSelectedNationId) {
@@ -54,7 +75,7 @@ export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
 
   const qualifiedNations = useMemo(
     () => nations.filter((nation) => qualifiedNationIds.has(nation.id)),
-    []
+    [nations]
   );
 
   const filteredNations = useMemo(() => {
@@ -70,12 +91,12 @@ export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
 
   const groupedNations = useMemo(() => {
     const nationMap = new Map(filteredNations.map((nation) => [nation.id, nation]));
-    const groups: Record<string, typeof nations> = {};
+    const groups: Record<string, Nation[]> = {};
 
     Object.entries(fifaGroups).forEach(([group, teamIds]) => {
       const teams = teamIds
         .map((teamId) => nationMap.get(teamId))
-        .filter(Boolean) as typeof nations;
+        .filter(Boolean) as Nation[];
       if (teams.length > 0) {
         groups[`Group ${group}`] = teams;
       }
