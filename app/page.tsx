@@ -39,7 +39,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-6">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="mx-auto mb-6">
-              <TabsTrigger value="squads">Squads</TabsTrigger>
+              <TabsTrigger value="squads">Groups</TabsTrigger>
               <TabsTrigger value="fixtures">Match Fixtures</TabsTrigger>
             </TabsList>
             <TabsContent value="squads" className="mt-0">

@@ -149,13 +149,9 @@ export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
             className="pl-10 bg-card/80 backdrop-blur-sm border-border/50"
           />
         </div>
-      </div>
-
-      {/* Title */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-          {t("allNationsTitle")}
-        </h2>
+        <p className="mt-2 text-center text-sm text-muted-foreground">
+          Click a nation to view their squad
+        </p>
       </div>
 
       {/* Nations by Confederation */}
@@ -167,9 +163,6 @@ export function NationsGrid({ initialSelectedNationId }: NationsGridProps) {
                 {language === "bn" ? getTranslatedGroupName(confederation) : confederation}
               </h3>
               <div className="flex-1 h-px bg-border/50" />
-              <span className="text-sm text-muted-foreground">
-                {confNations.length} {language === "bn" ? t("players") : "teams"}
-              </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {confNations.map((nation, index) => (

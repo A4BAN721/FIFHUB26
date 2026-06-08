@@ -27,9 +27,9 @@ export function Header() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex flex-col gap-1 rounded-3xl bg-background/50 p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
-              <div className="h-8 w-3 rounded-full bg-wc-green" />
-              <div className="h-8 w-3 rounded-full bg-wc-blue" />
-              <div className="h-8 w-3 rounded-full bg-wc-red" />
+              <div className="h-3 w-3 rounded-full bg-wc-green" />
+              <div className="h-3 w-3 rounded-full bg-wc-blue" />
+              <div className="h-3 w-3 rounded-full bg-wc-red" />
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">

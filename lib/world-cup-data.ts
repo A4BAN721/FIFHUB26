@@ -41,7 +41,6 @@ export const translations: Record<string, Record<string, string>> = {
   en: {
     title: "FIFHUB 26",
     subtitle: "World Cup 2026",
-    allNationsTitle: "Groups and Nations",
     allNationsSubtitle: "12 Groups, 48 Nations",
     players: "Players",
     position: "Position",
@@ -143,9 +142,8 @@ export const translations: Record<string, Record<string, string>> = {
     algeria: "Algeria",
   },
   bn: {
-    title: "ফিফা বিশ্বকাপ ২০২৬",
-    subtitle: "যুক্তরাষ্ট্র, মেক্সিকো ও কানাডা",
-    allNationsTitle: "গ্রুপ এবং দেশসমূহ",
+    title: "ফিফহাব ২৬",
+    subtitle: "বিশ্বকাপ ২০২৬",
     allNationsSubtitle: "১২টি গ্রুপ, ৪৮টি দেশ",
     players: "খেলোয়াড়",
     position: "অবস্থান",

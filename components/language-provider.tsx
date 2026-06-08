@@ -6,6 +6,13 @@ import { translations as fallbackTranslations } from "@/lib/world-cup-data";
 
 type Language = "en" | "bn";
 
+const translationOverrides: Partial<Record<Language, Record<string, string>>> = {
+  bn: {
+    title: "ফিফহাব ২৬",
+    subtitle: "বিশ্বকাপ ২০২৬",
+  },
+};
+
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -37,6 +44,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const t = (key: string): string => {
+    const override = translationOverrides[language]?.[key];
+    if (override) return override;
+
     return translations[language]?.[key] || translations.en[key] || key;
   };
 

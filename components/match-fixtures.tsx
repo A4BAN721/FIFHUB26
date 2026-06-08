@@ -127,9 +127,7 @@ export function MatchFixtures() {
     const normalized = normalizeCountryName(teamName);
     const translationKey = normalized.replace(/-/g, "");
     const translated = t(translationKey);
-    // If in English mode and no translation found, return the original teamName
-    // If in Bangla mode and no translation found, return the original teamName
-    return translated || teamName;
+    return translated === translationKey ? teamName : translated;
   };
 
   const getTranslatedStage = (stage: string): string => {
@@ -194,6 +192,27 @@ export function MatchFixtures() {
 
   const getTranslatedStadium = (stadium: string): string => {
     if (language === "en") return stadium;
+
+    const stadiumMap: Record<string, string> = {
+      "Atlanta Stadium": "আটলান্টা স্টেডিয়াম",
+      "BC Place Vancouver": "বিসি প্লেস ভ্যাঙ্কুভার",
+      "Boston Stadium": "বস্টন স্টেডিয়াম",
+      "Dallas Stadium": "ডালাস স্টেডিয়াম",
+      "Estadio Guadalajara": "এস্তাদিও গুয়াদালাহারা",
+      "Estadio Monterrey": "এস্তাদিও মন্টেরে",
+      "Houston Stadium": "হিউস্টন স্টেডিয়াম",
+      "Kansas City Stadium": "কানসাস সিটি স্টেডিয়াম",
+      "Los Angeles Stadium": "লস অ্যাঞ্জেলেস স্টেডিয়াম",
+      "Mexico City Stadium": "মেক্সিকো সিটি স্টেডিয়াম",
+      "Miami Stadium": "মায়ামি স্টেডিয়াম",
+      "New York New Jersey Stadium": "নিউ ইয়র্ক নিউ জার্সি স্টেডিয়াম",
+      "Philadelphia Stadium": "ফিলাডেলফিয়া স্টেডিয়াম",
+      "San Francisco Bay Area Stadium": "সান ফ্রান্সিসকো বে এরিয়া স্টেডিয়াম",
+      "Seattle Stadium": "সিয়াটল স্টেডিয়াম",
+      "Toronto Stadium": "টরন্টো স্টেডিয়াম",
+    };
+
+    if (stadiumMap[stadium]) return stadiumMap[stadium];
     
     // Convert stadium name to translation key (lowercase, no spaces, no special chars)
     const translationKey = stadium
@@ -201,7 +220,8 @@ export function MatchFixtures() {
       .replace(/[^a-z0-9]/g, "")
       .replace(/\s+/g, "");
     
-    return t(translationKey) || stadium;
+    const translated = t(translationKey);
+    return translated === translationKey ? stadium : translated;
   };
 
   const getTranslatedGroup = (group: string): string => {
@@ -301,7 +321,7 @@ export function MatchFixtures() {
                   </h3>
                   <div className="flex-1 h-px bg-border/50" />
                   <span className="text-xs text-muted-foreground">
-                    {matches.length} {matches.length === 1 ? t("players") : t("players")}
+                    {matches.length} Matches
                   </span>
                 </div>
 
@@ -313,7 +333,7 @@ export function MatchFixtures() {
                       </h4>
                       <div className="flex-1 h-px bg-border/30" />
                       <span className="text-[10px] text-muted-foreground">
-                        {matchday.matches.length} {matchday.matches.length === 1 ? t("players") : t("players")}
+                        {matchday.matches.length} Matches
                       </span>
                     </div>
 
@@ -372,7 +392,7 @@ export function MatchFixtures() {
                                         <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
                                         <span className="text-xs font-semibold text-foreground">
                                           <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
-                                            {match.homeTeam}
+                                            {getTranslatedTeamName(match.homeTeam)}
                                           </span>
                                         </span>
                                       </button>
@@ -380,7 +400,7 @@ export function MatchFixtures() {
                                       <div className="flex items-center gap-2">
                                         <span className="text-xl">{getNationFlag(match.homeTeam)}</span>
                                         <span className="text-xs font-semibold text-muted-foreground">
-                                          {match.homeTeam}
+                                          {getTranslatedTeamName(match.homeTeam)}
                                         </span>
                                       </div>
                                     )}
@@ -388,7 +408,7 @@ export function MatchFixtures() {
 
                                   {/* VS */}
                                   <div className="text-muted-foreground font-bold text-xs px-1">
-                                    VS
+                                    {t("vs")}
                                   </div>
 
                                   {/* Away Team */}
@@ -405,7 +425,7 @@ export function MatchFixtures() {
                                       >
                                         <span className="text-xs font-semibold text-foreground">
                                           <span className="hover:text-[var(--team-color)] transition-colors cursor-pointer hover:drop-shadow-[0_0_2px_var(--shadow-color)]">
-                                            {match.awayTeam}
+                                            {getTranslatedTeamName(match.awayTeam)}
                                           </span>
                                         </span>
                                         <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
@@ -413,7 +433,7 @@ export function MatchFixtures() {
                                     ) : (
                                       <div className="flex items-center gap-2 justify-end">
                                         <span className="text-xs font-semibold text-muted-foreground">
-                                          {match.awayTeam}
+                                          {getTranslatedTeamName(match.awayTeam)}
                                         </span>
                                         <span className="text-xl">{getNationFlag(match.awayTeam)}</span>
                                       </div>
@@ -424,7 +444,7 @@ export function MatchFixtures() {
                                 {/* Stadium */}
                                 <div className="flex items-center gap-1 text-muted-foreground text-xs mt-2 pt-2 border-t border-border/20">
                                   <MapPin className="h-3 w-3" />
-                                  <span className="truncate">{match.stadium}</span>
+                                  <span className="truncate">{getTranslatedStadium(match.stadium)}</span>
                                 </div>
                               </div>
                             </Card>
@@ -451,9 +471,11 @@ export function MatchFixtures() {
                   {getTranslatedStage(stage)}
                 </h3>
                 <div className="flex-1 h-px bg-border/50" />
-                <span className="text-xs text-muted-foreground">
-                  {matches.length} {matches.length === 1 ? t("players") : t("players")}
-                </span>
+                {matches.length > 1 && (
+                  <span className="text-xs text-muted-foreground">
+                    {matches.length} Matches
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
