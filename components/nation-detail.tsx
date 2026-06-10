@@ -268,17 +268,6 @@ interface PlayerCardProps {
 }
 
 function PlayerCard({ player, nationColors, index, t }: PlayerCardProps) {
-  const getTranslatedPlayerName = (fullName: string): string => {
-    // Convert full name to a translation key (camelCase, no spaces, no special chars)
-    const translationKey = fullName
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "")
-      .replace(/\s+/g, "");
-    
-    // Try to get translation, fallback to original name
-    return t(translationKey) || fullName;
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -305,7 +294,7 @@ function PlayerCard({ player, nationColors, index, t }: PlayerCardProps) {
             {/* Player Info */}
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                {getTranslatedPlayerName(player.fullName)}
+                {player.fullName}
               </h3>
               <p
                 className="text-sm font-medium mb-1"
